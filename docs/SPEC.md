@@ -58,6 +58,7 @@ The first candidate is authoritative. Duplicate commands and duplicate candidate
 - `WP104 RELOCATED`: winner bytes match but its path differs. Informational; does not fail.
 - `WP105 CANDIDATES_CHANGED`: non-winning candidate byte identities or order differ. This fails because future PATH edits can change the winner.
 - `WP106 PLATFORM_CHANGED`: search platform or executable suffix rules differ. This fails.
+- `WP107 COMMAND_SET_CHANGED`: the snapshots contain different command names. This fails.
 
 No report includes file contents, environment variables other than PATH-derived entries and PATHEXT-derived suffixes, or command output.
 
@@ -104,4 +105,3 @@ tasks/                implementation plan and status
 ## Open questions
 
 None for v0.1.0. Shell-aware resolution and registry/App Paths are explicit non-goals, not deferred compatibility promises.
-

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import Literal
 
 SNAPSHOT_SCHEMA = "whichproof.snapshot.v1"
 
@@ -35,3 +36,22 @@ class Snapshot:
     platform: PlatformInfo
     path_entries: tuple[str, ...]
     commands: tuple[CommandSnapshot, ...]
+
+
+@dataclass(frozen=True, slots=True)
+class Finding:
+    code: str
+    severity: Literal["error", "info"]
+    command: str | None
+    message: str
+    before: str | None
+    after: str | None
+
+
+@dataclass(frozen=True, slots=True)
+class Comparison:
+    findings: tuple[Finding, ...]
+
+    @property
+    def equivalent(self) -> bool:
+        return not any(finding.severity == "error" for finding in self.findings)
