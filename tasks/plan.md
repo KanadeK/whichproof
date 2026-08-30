@@ -28,7 +28,7 @@
 
 - [x] Add examples, repair guide, README, contributing/security policy, and changelog.
 - [x] Add cross-platform CI, tag release workflow, deterministic package checks, and local gate.
-- [ ] Review all axes, fix findings, commit exact paths, tag, publish, verify, and notify.
+- [x] Review all axes, fix findings, commit exact paths, tag, publish, verify, and notify.
 
 ## Risks and mitigations
 
