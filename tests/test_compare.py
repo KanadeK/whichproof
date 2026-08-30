@@ -82,6 +82,26 @@ def test_byte_identical_relocation_is_informational() -> None:
     assert comparison.findings[0].severity == "info"
 
 
+def test_windows_paths_are_compared_case_insensitively() -> None:
+    windows = PlatformInfo(
+        system="Windows",
+        machine="AMD64",
+        path_separator=";",
+        executable_suffixes=(".EXE",),
+    )
+    before = snapshot(
+        (command("tool", candidate("C:/Tools/tool.exe", "a")),),
+        platform_info=windows,
+    )
+    after = snapshot(
+        (command("tool", candidate("c:/tools/TOOL.EXE", "a")),),
+        platform_info=windows,
+    )
+
+    assert compare_snapshots(before, after).equivalent
+    assert finding_codes(before, after) == []
+
+
 def test_alternate_candidate_identity_or_order_drift_fails() -> None:
     winner = candidate("/first/tool", "a")
     before = snapshot((command("tool", winner, candidate("/second/tool", "b", 1)),))

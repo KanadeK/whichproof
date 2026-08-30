@@ -6,6 +6,7 @@ from pathlib import Path
 
 import pytest
 
+from whichproof import resolver
 from whichproof.resolver import (
     ResolutionError,
     capture_snapshot,
@@ -101,3 +102,72 @@ def test_windows_executable_names_follow_pathext_order() -> None:
 
 def test_posix_executable_names_use_exact_name() -> None:
     assert executable_names("tool", ("",)) == ("tool",)
+
+
+def test_windows_suffixes_use_default_and_deduplicate_pathext(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    with monkeypatch.context() as context:
+        context.setattr(resolver.os, "name", "nt")
+        context.setattr(resolver.os, "pathsep", ";")
+        context.delenv("PATHEXT", raising=False)
+        assert executable_suffixes() == (".COM", ".EXE", ".BAT", ".CMD")
+
+        context.setenv("PATHEXT", ".EXE;.CMD;.exe.")
+        assert executable_suffixes() == (".EXE", ".CMD")
+
+
+def test_windows_implicit_current_directory_is_captured(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    class FakePath:
+        def __init__(self, value: object) -> None:
+            self.value = str(value)
+
+        @classmethod
+        def cwd(cls) -> FakePath:
+            return cls("C:/cwd")
+
+        def absolute(self) -> FakePath:
+            return self
+
+        @property
+        def parent(self) -> FakePath:
+            return FakePath(self.value.rsplit("/", 1)[0])
+
+        def __str__(self) -> str:
+            return self.value
+
+    path_entries = ["C:/tools"]
+    with monkeypatch.context() as context:
+        context.setattr(resolver.os, "name", "nt")
+        context.setattr(resolver, "Path", FakePath)
+        context.setattr(resolver, "_absolute_path", lambda path: str(path))
+        context.setattr(resolver.shutil, "which", lambda command, path: "C:/cwd/tool")
+        resolver._include_implicit_windows_current_directory(
+            path_entries,
+            ("nested/tool", "tool"),
+            "C:/tools",
+        )
+
+    assert path_entries == ["C:/cwd", "C:/tools"]
+
+
+def test_capture_fails_if_executable_changes_while_hashing(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    tools = tmp_path / "tools"
+    tools.mkdir()
+    executable = make_executable(tools, "demo", b"before")
+
+    def mutate_while_hashing(path: Path) -> str:
+        path.write_bytes(b"changed while hashing")
+        return hashlib.sha256(b"before").hexdigest()
+
+    monkeypatch.setattr(resolver, "_sha256_file", mutate_while_hashing)
+
+    with pytest.raises(ResolutionError, match="changed while hashing"):
+        capture_snapshot(("demo",), path_value=str(tools))
+
+    assert executable.read_bytes() == b"changed while hashing"
