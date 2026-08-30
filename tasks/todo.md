@@ -1,0 +1,23 @@
+# Task checklist
+
+- [ ] Task 1: Snapshot model and strict JSON I/O
+  - Acceptance: schema v1 round-trips deterministically and rejects missing, extra, or mistyped fields.
+  - Verify: `uv run pytest tests/test_snapshot_io.py`
+  - Files: `models.py`, `snapshot_io.py`, focused tests.
+- [ ] Task 2: Ordered executable capture
+  - Acceptance: explicit paths plus PATH/PATHEXT searches return all unique executable files in first-seen order with stable hashes.
+  - Verify: `uv run pytest tests/test_resolver.py`
+  - Files: `resolver.py`, focused tests.
+- [ ] Task 3: Drift comparison
+  - Acceptance: WP101-WP106 and relocation equivalence match the specification.
+  - Verify: `uv run pytest tests/test_compare.py`
+  - Files: `compare.py`, focused tests.
+- [ ] Task 4: Public CLI
+  - Acceptance: capture/verify/diff provide deterministic text/JSON and exit 0/1/2.
+  - Verify: `uv run pytest tests/test_cli.py`
+  - Files: `cli.py`, package entry points, focused tests.
+- [ ] Task 5: Release delivery
+  - Acceptance: docs, demo, CI, package artifacts, security audit, and fresh install pass one gate.
+  - Verify: `uv run python scripts/check.py`
+  - Files: delivery-only files, workflows, examples.
+
