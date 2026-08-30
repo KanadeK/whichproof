@@ -1,0 +1,91 @@
+[build-system]
+requires = ["hatchling>=1.27,<2"]
+build-backend = "hatchling.build"
+
+[project]
+name = "whichproof"
+version = "0.1.0"
+description = "Prove which executable a bare command will resolve to"
+readme = "README.md"
+requires-python = ">=3.12"
+license = "MIT"
+authors = [{ name = "KanadeK" }]
+keywords = ["path", "command", "ci", "reproducibility", "debugging"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Environment :: Console",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: MIT License",
+  "Operating System :: Microsoft :: Windows",
+  "Operating System :: POSIX",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Topic :: Software Development :: Debuggers",
+  "Topic :: System :: Systems Administration",
+]
+dependencies = []
+
+[project.scripts]
+whichproof = "whichproof.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/KanadeK/whichproof"
+Issues = "https://github.com/KanadeK/whichproof/issues"
+
+[dependency-groups]
+dev = [
+  "build>=1.2.2,<2",
+  "coverage[toml]>=7.6,<8",
+  "hatchling>=1.27,<2",
+  "mypy>=1.14,<2",
+  "pytest>=8.3,<9",
+  "ruff>=0.9,<1",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/whichproof"]
+
+[tool.hatch.build.targets.sdist]
+include = [
+  "/.github",
+  "/docs",
+  "/examples",
+  "/scripts",
+  "/src",
+  "/tests",
+  "/AGENTS.md",
+  "/CHANGELOG.md",
+  "/CONTRIBUTING.md",
+  "/LICENSE",
+  "/README.md",
+  "/SECURITY.md",
+  "/pyproject.toml",
+  "/uv.lock",
+]
+
+[tool.pytest.ini_options]
+addopts = "-ra --strict-markers"
+testpaths = ["tests"]
+
+[tool.coverage.run]
+branch = true
+source = ["whichproof"]
+
+[tool.coverage.report]
+fail_under = 90
+show_missing = true
+skip_covered = true
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "SIM", "RUF"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+files = ["src", "scripts"]
+
