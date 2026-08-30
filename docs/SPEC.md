@@ -58,7 +58,7 @@ The first candidate is authoritative. Duplicate commands and duplicate candidate
 - `WP104 RELOCATED`: winner bytes match but its path differs. Informational; does not fail.
 - `WP105 CANDIDATES_CHANGED`: non-winning candidate byte identities or order differ. This fails because future PATH edits can change the winner.
 - `WP106 PLATFORM_CHANGED`: search platform or executable suffix rules differ. This fails.
-- `WP107 COMMAND_SET_CHANGED`: the snapshots contain different command names. This fails.
+- `WP107 COMMAND_SET_CHANGED`: the snapshots contain different command names or order. This fails.
 
 No report includes file contents, environment variables other than PATH-derived entries and PATHEXT-derived suffixes, or command output.
 
@@ -67,7 +67,7 @@ No report includes file contents, environment variables other than PATH-derived 
 ```text
 src/whichproof/       domain models, resolver, comparison, JSON I/O, CLI
 tests/                unit and integration tests
-examples/             synthetic PATH trees and checked-in evidence
+examples/             runnable-example guidance
 docs/                 specification, architecture, research, repair guide
 scripts/check.py      single release-equivalent local gate
 .github/workflows/    Windows/Linux CI and tag release build
@@ -78,7 +78,7 @@ tasks/                implementation plan and status
 
 - Typed Python, Ruff formatting, strict mypy.
 - Dataclasses carry trusted internal state; JSON parsing constructs them once at the boundary.
-- Errors are explicit `WhichProofError` values; no broad catches or silent defaults.
+- Boundary and resolution failures use explicit exception types; no broad catches or silent defaults.
 
 ## Testing strategy
 

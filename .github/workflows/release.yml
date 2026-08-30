@@ -1,0 +1,44 @@
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@v9
+        with:
+          version: "0.11.20"
+          enable-cache: true
+      - name: Sync locked environment
+        run: uv sync --locked --python 3.13
+      - name: Match tag to package version
+        shell: bash
+        run: |
+          version="$(uv run --no-sync whichproof --version | awk '{print $2}')"
+          test "v${version}" = "${GITHUB_REF_NAME}"
+      - name: Audit locked dependencies
+        run: uv audit --locked
+      - name: Build and verify release artifacts
+        run: uv run --no-sync python scripts/check.py
+      - name: Publish GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: >-
+          gh release create "${GITHUB_REF_NAME}"
+          dist/whichproof-*.whl
+          dist/whichproof-*.tar.gz
+          dist/SHA256SUMS
+          --verify-tag
+          --generate-notes
+          --title "WhichProof ${GITHUB_REF_NAME}"
